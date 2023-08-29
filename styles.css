@@ -1,0 +1,27 @@
+.canvas-section{
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#canvas{
+    background-color: aqua;
+    
+
+}
+
+
+
+/* .avatar-running{
+    
+    width: 200px;
+    height: 200px;
+    background-image: url(./animations/run-animation.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position-x: 0px;
+    background-position-y: 0px;
+}
+ */
