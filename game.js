@@ -94,16 +94,33 @@ window.addEventListener("keyup", onKeyUp); */
  * @param {string} action - nombre de la accion de la animacion (run, jump)
   */
 
-function animate(avatar, avatarDimensions,  staggerFrames, animationsFrames, action, isLoop) {
+function animate(avatar, avatarDimensions,  staggerFrames, animationsFrames, action, isLoop,  evento, controls, isTemplate) {
 
+   
     let numberOfFrames=animationsFrames[action].length
     let frames=animationsFrames
     let idAnimation;
     let gameFrame = 0;
-    
+
+
+    if(isTemplate){
+       
+        
+
+           for(const control in controls){
+            window.addEventListener(evento, (e)=>{
+                
+                if(e.key==control){
+                    cancelAnimationFrame(idAnimation)
+                }
+            })
+           }
+    }
+
+      
     function startAnimation(){
 
-
+        
         ctx.clearRect(0, 0, canvas.width, canvas.height);
             
                 // Solo realiza la animación si isRunning es true
@@ -114,20 +131,12 @@ function animate(avatar, avatarDimensions,  staggerFrames, animationsFrames, act
                 ctx.drawImage(avatar, frames[action][frameX].codX, frames[action][frameX].codY, avatarDimensions.width, avatarDimensions.height, 0, 0, 200, 200);
                 gameFrame++;
 
-               
-
                 if (isLoop || position < numberOfFrames - 1) {
                     idAnimation = requestAnimationFrame(startAnimation);
-                }
-
-                window.addEventListener("keyup", ()=>{
-                    cancelAnimationFrame(idAnimation)
-                })
+                }               
     }
 
-    startAnimation()
-    return idAnimation;
-    
+            idAnimation= startAnimation()
 
 }
 
@@ -149,7 +158,7 @@ let framesGroupJump=groupSetOfFrames("jumpReady", "jumpStart", "jumpFinish", {fr
  function groupSetOfFrames(...actions){
 
     let animationFrames={}
-    /* let group=["jumpReady", "jumpStart", "jumpFinish", {frames: frames}] */
+
     const config=actions.find(elem=> elem.hasOwnProperty("frames"))
     const name= config.animationName
     const frames = config.frames;
@@ -179,41 +188,22 @@ let framesGroupJump=groupSetOfFrames("jumpReady", "jumpStart", "jumpFinish", {fr
     
     const controls= {
         ArrowUp: ["jumpStart","keydown", false, "jumpFinish", "keyup", false],
-        ArrowRight: ["runStart","keydown", true, "idle", "keyup", false]
+        ArrowRight: ["runStart","keydown", true, "idle", "keyup", true],
+        ArrowLeft:["punch","keydown", false, "ok", "keyup", false]
         
     }
-
-    /*
-    const config=controls[control];
-            const animacion=config[0];
-            const animacionCierre=config[3];
-            const evento=config[1];
-            const eventoCierre=config[4];
-            const isStartAnimationloop=[2];
-            const isEndAnimationloop=[5]; 
-     */
 
     function animateCharacter(url, widthFrame, heightFrame, stagger, frames, controls){
         const avatar= new Image();
         avatar.setAttribute("isDisplayed", false);
-        
         avatar.src=url
        
         //controls
-
         const staggerFrames = stagger;
-
         
         // set controls
-        //target element to add event (recordar agregar)
-
         for(const control in controls){
-           
-            /*
-            console.log(config);
-            output: ["nombreDeAnimacion", "evento"] 
-             */
-
+            
             const config=controls[control];
             const animacion=config[0];
             const animacionCierre=config[3];
@@ -224,67 +214,47 @@ let framesGroupJump=groupSetOfFrames("jumpReady", "jumpStart", "jumpFinish", {fr
 
            /*  let playAnimation; */
             let idAnimation;
+            let isDisplayed=false
+             
+            window.addEventListener(evento, (e)=>{
 
-            let isDisplayed;
-          
-            let idAnimationTest;
-            
-            window.addEventListener(evento, function(event){
-                 
-                if(event.key==control){
-
-                    if(idAnimation){
-                        cancelAnimationFrame(idAnimation);
-                    }
-
-                    isDisplayed=avatar.getAttribute("isDisplayed")==="true"? true : false;
+                if(e.key===control){
                     
+                isDisplayed=avatar.getAttribute("isDisplayed")==="true"? true : false;
                     
+
+                if(isDisplayed===false){
+
+                    console.log("play init animation")
+                    idAnimation=animate(avatar, {width: widthFrame, height:heightFrame}, staggerFrames, frames, animacion, isStartAnimationloop, eventoCierre, controls, isTemplate);
                     
-                    if(!isDisplayed){
 
-                        //cancelar animacion de cierre
-                         console.log(idAnimation)
-                         idAnimation=animate(avatar, {width: widthFrame, height:heightFrame}, staggerFrames, frames, animacion, isStartAnimationloop); 
-                         console.log(idAnimation)
-                        
-                         
-                        
-                         avatar.setAttribute("isDisplayed", "true");
-                         
-                    }       
+                    avatar.setAttribute("isDisplayed", "true");
 
-                }   
-
-            })
-
-            
-
-            window.addEventListener(eventoCierre, function(event){
-                console.log(event)
-                if(idAnimation){
-                    cancelAnimationFrame(idAnimation);
-                    
                 }
 
-                isDisplayed=avatar.getAttribute("isDisplayed")==="true"? true : false
+                }
+            })
+
+            window.addEventListener(eventoCierre,(e)=>{
                 
-                if(event.key===control){
-                  
-                    if(isDisplayed){
-                        console.log(idAnimation)
-                        
-                        /* idAnimation=animate(avatar, {width: widthFrame, height:heightFrame}, staggerFrames, frames, animacionCierre, isEndAnimationloop); 
- */               
-                    
-                        avatar.setAttribute("isDisplayed", "false")
-                    }    
+                if(e.key===control){
+
+                isDisplayed=avatar.getAttribute("isDisplayed")==="true"? true : false;
+               
+                if(isDisplayed){
+                idAnimation=animate(avatar, {width: widthFrame, height:heightFrame}, staggerFrames, frames, animacionCierre, isEndAnimationloop, evento, controls, isTemplate); 
+
+                console.log(evento)
+                 avatar.setAttribute("isDisplayed", "false");
                 }
-            })
+
+                }
+
+                
+            })            
             
         }
-
-       
 
     }
     
