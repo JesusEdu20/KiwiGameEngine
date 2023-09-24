@@ -81,6 +81,7 @@ function initAnimation(avatar, widthFrame, heightFrame, staggerFrames, frames, c
 
 
 export class control{
+
     constructor(character){
         this.character=character
         
@@ -101,7 +102,6 @@ export class control{
             const endEvent=config.endEvent;
             const isLoopEndAnimation=config.endLoop;
             const displacementPhysics=config.displacementPhysics
-
             
             window.addEventListener(startEvent, (e)=>{
                 
@@ -169,6 +169,12 @@ export class universe{
         this.characterCoordinates[name]={x,y,width,height}
     } */
 
+    cleanCanvas=()=>{
+
+        console.log("universe")
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        requestAnimationFrame(this.cleanCanvas)
+    }
 
      detectCollisions(){
 

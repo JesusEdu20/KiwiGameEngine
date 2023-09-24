@@ -141,7 +141,7 @@ export function animate(
 
            /*  this.updateCoordinatesInUniverse(this.position.x, this.position.y, this.body.width, this.body.height) */
            console.log(this.universe.sprites)
-           
+           //gravedad
            this.speedY+=this.acceleration
            
            if((this.position.y + this.speedY) > this.around.y){
@@ -156,8 +156,8 @@ export function animate(
 
             //coordinates of hitbox
             this.updateCoordinatesInUniverse(this.position.x+36, this.position.y+26, 60, 126)
-            
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+            /* this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); */
                     this.ctx.fillRect(400, 0, 100, 100)
                     this.ctx.fillRect(this.position.x+36, this.position.y+26, 60, 126);
 
