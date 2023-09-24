@@ -1,8 +1,7 @@
-import {animateCharacter, control, universe} from "./controls.js"
-import { animate, mapFrames } from "./animations.js";
-
-import { character } from "./objectAnimation.js";
-import { Universe, Control, Character } from "./superObject.js"
+import {Control} from "./controls.js"
+import { mapFrames} from "./animations.js";
+import { Character } from "./character.js";
+import { Universe } from "./universe.js";
 
 
  const frames=mapFrames({ name:"idle", frames: 20}, { name:"runReady", frames: 11}, 
@@ -10,6 +9,8 @@ import { Universe, Control, Character } from "./superObject.js"
 { name:"jumpStart", frames: 11}, { name:"jumpFinish", frames: 11}, { name:"ok", frames: 19}, 
 { name:"punch", frames: 10},
 {dimensions:{width:796, height:719}}) 
+
+
 /*
 const canvas=document.getElementById("canvas")
 const ctx=canvas.getContext("2d")
@@ -253,9 +254,6 @@ const willSmith= new Character(
 
 
 
-
-
-/* world.requestSpriteAnimation(chue) */
 
 world.drawSprites()
 
