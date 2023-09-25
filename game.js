@@ -1,396 +1,279 @@
-// Obtiene el elemento canvas del DOM con el ID "canvas"
-const canvas = document.getElementById("canvas");
-
-// Obtiene el contexto 2D del canvas para realizar dibujos en él
-const ctx = canvas.getContext("2d");
-
-
-/**
- * Ajusta el tamaño de un elemento HTML en función de un porcentaje decimal.
- * @param {HTMLElement} element - El elemento HTML cuyo tamaño se ajustará.
- * @param {number} decimalPercentage - El porcentaje decimal para ajustar el tamaño.
- */
-const setElementSize = (element, decimalPercentage) => {
-    let elementSize;
-
-    // Comprueba si el ancho de la ventana es mayor que su altura
-    if (window.innerWidth > window.innerHeight) {
-        elementSize = window.innerHeight; // Establece el tamaño del elemento como la altura de la ventana
-    } else {
-        elementSize = window.innerWidth; // Establece el tamaño del elemento como el ancho de la ventana
-    }
-
-    // Ajusta el ancho y el alto del elemento en función del porcentaje decimal
-    element.style.width = `${elementSize * (decimalPercentage / 100)}px`;
-    element.style.height = `${elementSize * (decimalPercentage / 100)}px`;
-}
+import {Control} from "./controls.js"
+import { mapFrames} from "./animations.js";
+import { Character } from "./character.js";
+import { Universe } from "./universe.js";
 
 
-
-//* / Agrega un evento de escucha al objeto window para detectar cambios en el tamaño de la ventana
-window.addEventListener("resize", () => {
-    // Cuando ocurre el evento "resize", llama a la función setElementSize para ajustar el tamaño del canvas al 70% de la ventana
-    setElementSize(canvas, 90);
-});
-
-window.addEventListener("load", () => {
-    // Cuando ocurre el evento "resize", llama a la función setElementSize para ajustar el tamaño del canvas al 70% de la ventana
-    setElementSize(canvas, 90);
-});
-
- 
+ const frames=mapFrames({ name:"idle", frames: 20}, { name:"runReady", frames: 11}, 
+{ name:"runStart", frames: 19}, { name:"runFinish", frames: 11}, { name:"jumpReady", frames: 11},
+{ name:"jumpStart", frames: 11}, { name:"jumpFinish", frames: 11}, { name:"ok", frames: 19}, 
+{ name:"punch", frames: 10},
+{dimensions:{width:796, height:719}}) 
 
 
+/*
+const canvas=document.getElementById("canvas")
+const ctx=canvas.getContext("2d")
+const world = new universe("RigobertoWorld", canvas, ctx);
+world.setCanvasSize(90, true);
+world.cleanCanvas(); */
+
+/* world.setCharacterCoordinatesInUniverse("rect", 0,400, 100,100);
+console.log(world.characterCoordinates) */
+
+
+const controls = {
+    ArrowUp: {
+        startAnimation:"jumpStart",
+        startEvent: "keydown",
+        startLoop: false,
+        endAnimation: "jumpFinish",
+        endEvent: "keyup",
+        endLoop: false,
+        displacementPhysics:{speedX:1, speedY:-20}
+    },
+    ArrowRight: {
+        startAnimation:"runStart",
+        startEvent: "keydown",
+        startLoop: true,
+        endAnimation: "idle",
+        endEvent: "keyup",
+        endLoop: true,
+        displacementPhysics:{speedX:2, speedY:0}
+    },
+    ArrowLeft: {
+        startAnimation: "punch",
+        startEvent: "keydown",
+        startLoop: false,
+        endAnimation:"ok",
+        endEvent: "keyup",
+        endLoop: false,
+        displacementPhysics:{speedX:0, speedY:0}
+    },
+};
+
+const controlsWS = {
+    w: {
+        startAnimation:"jumpStart",
+        startEvent: "keydown",
+        startLoop: false,
+        endAnimation: "jumpFinish",
+        endEvent: "keyup",
+        endLoop: false,
+        displacementPhysics:{speedX:1, speedY:-20}
+    },
+    d: {
+        startAnimation:"runStart",
+        startEvent: "keydown",
+        startLoop: true,
+        endAnimation: "idle",
+        endEvent: "keyup",
+        endLoop: true,
+        displacementPhysics:{speedX:2, speedY:0}
+    },
+    a: {
+        startAnimation: "punch",
+        startEvent: "keydown",
+        startLoop: false,
+        endAnimation:"ok",
+        endEvent: "keyup",
+        endLoop: false,
+        displacementPhysics:{speedX:0, speedY:0}
+    },
+};
 
 
 
 /* 
-
-let frameX = 0;
-let frameY = 0;
-
-
-const staggerFrames = 5;
-let isRunning = false; // Variable para controlar si la animación está en ejecución
-
-// Función para manejar el evento de tecla presionada
-function onKeyDown(event) {     
-    if(isRunning==false){
-        if (event.key === "ArrowRight") {
-            isRunning = true; // Comienza la animación al presionar la tecla de la flecha derecha
-            animate(); // Llama a la función animate
-        }
-    }    
-}
-
-
-
-
-// Función para manejar el evento de tecla soltada
-function onKeyUp(event) {
-    if (event.key === "ArrowRight" && isRunning) {
-        isRunning = false; // Detiene la animación al soltar la tecla de la flecha derecha
-
-        
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        ctx.drawImage(avatar, 0 * 796, frameY * 719, 796, 719, 0, 0, 200, 200);
-
-        cancelAnimationFrame(idAnimation); // Cancela la animación en ejecución
-
-    }
-} */
-
-
-
-// Agrega event listeners para los eventos de teclado
-/* window.addEventListener("keydown", onKeyDown);
-window.addEventListener("keyup", onKeyUp); */
-
-
-/** 
- * @param {HTMLImageElement} avatar - animation sprite sheet a renderizar
- * @param {object} avatarDimensions - dimensiones del fotograma en la animation sprite sheet
- * @param {number} staggerFrames - tiempo de ejecucion para cada fotograma
- * @param {string} action - nombre de la accion de la animacion (run, jump)
-  */
-
-function animate(avatar, avatarDimensions,  staggerFrames, animationsFrames, action, isLoop) {
-
-    let numberOfFrames=animationsFrames[action].length
-    let frames=animationsFrames
-    let idAnimation;
-    let gameFrame = 0;
-    
-    function startAnimation(){
-
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-                // Solo realiza la animación si isRunning es true
-
-                let position = Math.floor(gameFrame / staggerFrames) % numberOfFrames;
-                let frameX = position;
-
-                ctx.drawImage(avatar, frames[action][frameX].codX, frames[action][frameX].codY, avatarDimensions.width, avatarDimensions.height, 0, 0, 200, 200);
-                gameFrame++;
-
-               
-
-                if (isLoop || position < numberOfFrames - 1) {
-                    idAnimation = requestAnimationFrame(startAnimation);
-                }
-
-                window.addEventListener("keyup", ()=>{
-                    cancelAnimationFrame(idAnimation)
-                })
-    }
-
-    startAnimation()
-    return idAnimation;
-    
-
-}
-
-
-const frames=mapFrames({ name:"idle", frames: 20}, { name:"runReady", frames: 11}, 
-{ name:"runStart", frames: 19}, { name:"runFinish", frames: 11}, { name:"jumpReady", frames: 11},
-{ name:"jumpStart", frames: 11}, { name:"jumpFinish", frames: 11}, { name:"ok", frames: 19}, 
-{ name:"punch", frames: 10},
-{dimensions:{width:796, height:719}})
-
-let framesGroupJump=groupSetOfFrames("jumpReady", "jumpStart", "jumpFinish", {frames: frames, animationName:"jumpGroup"})
-
-
- /** 
-  * Agrupa los distintos conjuntos de fotogramas,  correspondiendo cada uno de estos conjuntos a una accion determinada del personaje como (jumpReady) para formar acciones completas a partir de otras acciones;
-  * @param {Array} actions - array con los  nombres de las acciones mapeadas en la funcion  (mapFrames) llevando en el ultimo indice un objeto con la propiedad frame para guardar la colleccion de frames resultantes de la funcion  (mapFrames)
+const spriteSheet= new Image()
+spriteSheet.src="./animations/1x/Artboard-1.png"
 
  */
- function groupSetOfFrames(...actions){
 
-    let animationFrames={}
-    /* let group=["jumpReady", "jumpStart", "jumpFinish", {frames: frames}] */
-    const config=actions.find(elem=> elem.hasOwnProperty("frames"))
-    const name= config.animationName
-    const frames = config.frames;
-    const group= actions.filter(elem=> typeof elem==="string");
-    
-    let run=[]
-
-    for (let i=0; i < group.length ; i++){
-
-        run.push(frames[group[i]]);
-        const flattenedArray = run.flatMap(innerArray => innerArray);
-        animationFrames[name]=flattenedArray
-    }
-
-    console.log(animationFrames)
-    return animationFrames
-}
+/* const rigoberto = new character(796, 719, spriteSheet, frames, canvas, ctx, controls, world) */
+/* const willSmith= new character(796, 719, spriteSheet, frames, canvas, ctx, controlsWS, world); */
 
 
+/* const controlsOfRigoberto = new control(rigoberto); */
+/* const controlsOfWillSmith = new control(willSmith); */
 
+/* controlsOfRigoberto.hookCharacter() */
+/* controlsOfWillSmith.hookCharacter() */
 
-/** 
- * @param {string} url - ruta de la animation Sprite sheet
- * 
- * 
-  */
-    
-    const controls= {
-        ArrowUp: ["jumpStart","keydown", false, "jumpFinish", "keyup", false],
-        ArrowRight: ["runStart","keydown", true, "idle", "keyup", false]
-        
-    }
-
-    /*
-    const config=controls[control];
-            const animacion=config[0];
-            const animacionCierre=config[3];
-            const evento=config[1];
-            const eventoCierre=config[4];
-            const isStartAnimationloop=[2];
-            const isEndAnimationloop=[5]; 
-     */
-
-    function animateCharacter(url, widthFrame, heightFrame, stagger, frames, controls){
-        const avatar= new Image();
-        avatar.setAttribute("isDisplayed", false);
-        
-        avatar.src=url
-       
-        //controls
-
-        const staggerFrames = stagger;
-
-        
-        // set controls
-        //target element to add event (recordar agregar)
-
-        for(const control in controls){
-           
-            /*
-            console.log(config);
-            output: ["nombreDeAnimacion", "evento"] 
-             */
-
-            const config=controls[control];
-            const animacion=config[0];
-            const animacionCierre=config[3];
-            const evento=config[1];
-            const eventoCierre=config[4];
-            const isStartAnimationloop=config[2];
-            const isEndAnimationloop=config[5];
-
-           /*  let playAnimation; */
-            let idAnimation;
-
-            let isDisplayed;
-          
-            let idAnimationTest;
-            
-            window.addEventListener(evento, function(event){
-                 
-                if(event.key==control){
-
-                    if(idAnimation){
-                        cancelAnimationFrame(idAnimation);
-                    }
-
-                    isDisplayed=avatar.getAttribute("isDisplayed")==="true"? true : false;
-                    
-                    
-                    
-                    if(!isDisplayed){
-
-                        //cancelar animacion de cierre
-                         console.log(idAnimation)
-                         idAnimation=animate(avatar, {width: widthFrame, height:heightFrame}, staggerFrames, frames, animacion, isStartAnimationloop); 
-                         console.log(idAnimation)
-                        
-                         
-                        
-                         avatar.setAttribute("isDisplayed", "true");
-                         
-                    }       
-
-                }   
-
-            })
-
-            
-
-            window.addEventListener(eventoCierre, function(event){
-                console.log(event)
-                if(idAnimation){
-                    cancelAnimationFrame(idAnimation);
-                    
-                }
-
-                isDisplayed=avatar.getAttribute("isDisplayed")==="true"? true : false
-                
-                if(event.key===control){
-                  
-                    if(isDisplayed){
-                        console.log(idAnimation)
-                        
-                        /* idAnimation=animate(avatar, {width: widthFrame, height:heightFrame}, staggerFrames, frames, animacionCierre, isEndAnimationloop); 
- */               
-                    
-                        avatar.setAttribute("isDisplayed", "false")
-                    }    
-                }
-            })
-            
-        }
-
-       
-
-    }
-    
-
-    animateCharacter("./animations/1x/Artboard-1.png", //sprite animation sheet
-    796, //dimensions
-    719, //
-     5,  // stagger
-     frames, // frames
-     controls // controles
-     );
-
-
-
-
-/**
- * @param {object} actions - objetos con el nombre de la accion a animar y la cantidad de fotogramas
- * @returns {object} - objeto el cual guarda las distintas acciones (run/jump) en arreglos guardando las   cordenadas en X,Y 
- * @example - 
- * ejemplo de uso 
- * const result=mapFrames(
-    { name:"Run", frames:18 },
-    {name:"jump", frames:15} 
-    { dimensions:{width:796, height:719}}
-    );
-
- * console.log(mapFrames(result));
- * output: 
- * {
-  Run: [
-    { codX: 0, codY: 0 },
-    { codX: 796, codY: 0 },
-    { codX: 1592, codY: 0 },
-    { codX: 2388, codY: 0 },
-    { codX: 3184, codY: 0 },
-  }
- */
-
-function mapFrames(...actions){
-
-    const dimensionsFrame=actions.find(elem=> elem.hasOwnProperty("dimensions"));
-    const animationsState=actions.filter(frames=> frames.hasOwnProperty("frames"));
-
-      
-    const animationsFrames={}
-   
-
-
-    animationsState.forEach((state, index)=>{
-
-        let animationName=state.name
-        animationsFrames[animationName]=[]
-
-        
-        for(let i=0; i<state.frames; i++){
-
-            let codX=i * dimensionsFrame.dimensions.width;
-            let codY=index * dimensionsFrame.dimensions.height;  
-
-            animationsFrames[animationName].push({codX, codY});   
-        }  
-    })
-
-    return animationsFrames
-}
-
-
-
-
-
-
-
-
-const flechas={
-
-    arrowUp: 38,
-    arrowDown: 40,
-    arrowRight:39,
-    arrowLeft:37,
- 
-}
-
-
-
-
-/* window.addEventListener("keydown", function(event){
-   
-    switch (event.keyCode) {
-
-        case flechas.arrowUp:
-            
-        break;
-        
-        case flechas.arrowDown:
-             
-        break;
-
-        case flechas.arrowLeft:
-            
-        break;
-
-        case flechas.arrowRight:
-            
-        break;
-
-    }
+/* world.sprites.push({
+    x: 400,
+    y: 0,
+    width:100,
+    height:100,
 })
-
  */
+
+const spriteSheet= new Image();
+spriteSheet.src="./animations/1x/Artboard-1.png";
+
+const test = {
+
+    speedX:0,
+    speedY:0,
+    acceleration:0,
+    position:{x:100, y:100},
+    around:{x:0, y:0},
+    gameFrameCounter: 0,
+    spriteSheet: spriteSheet,
+    frameWidth: 796,
+    frameHeight: 719,
+    body: {},
+
+    //params
+    staggerFrames:5,
+    animationName:"runStart",
+    isLoopAnimation: true,
+    cancelEvent: "", 
+    isAutoOffAnimation:true,
+
+    frameCoordinates:frames,
+
+    spriteId:""
+}
+
+
+
+const test2 = {
+
+    speedX:0,
+    speedY:0,
+    acceleration:0,
+    position:{x:140, y:100},
+    around:{x:0, y:0},
+    gameFrameCounter: 0,
+    spriteSheet: spriteSheet,
+    frameWidth: 796,
+    frameHeight: 719,
+    body: {},
+
+    //params
+    staggerFrames:5,
+    animationName:"jumpReady",
+    isLoopAnimation: true,
+    cancelEvent: "", 
+    isAutoOffAnimation:true,
+
+    frameCoordinates:frames,
+
+    spriteId:""
+}
+
+const canvas=document.getElementById("canvas");
+const world= new Universe(canvas)
+
+const chue= new Character(
+
+    {     
+        speedX:0,
+        speedY:0,
+        acceleration:0,
+       /*  position:{x:140, y:400}, */
+        around:{x:0, y:0},
+        /* gameFrameCounter: 0, */
+        spriteSheet: spriteSheet,
+        frameWidth: 796,
+        frameHeight: 719,
+       
+
+        //params
+        staggerFrames:5,
+        animationName:"jumpReady",
+        /* isLoopAnimation: false, */
+        cancelEvent: "", 
+        isAutoOffAnimation:true,
+
+        frameCoordinates:frames,
+        controls:controls,
+        universe:world,
+        positionX:200
+    }
+)
+
+const rigoberto= new Character(
+
+    {     
+        speedX:0,
+        speedY:0,
+        acceleration:0,
+       /*  position:{x:400, y:100}, */
+        around:{x:0, y:0},
+        /* gameFrameCounter: 0, */
+        spriteSheet: spriteSheet,
+        frameWidth: 796,
+        frameHeight: 719,
+       
+
+        //params
+        staggerFrames:5,
+        animationName:"jumpReady",
+        /* isLoopAnimation: false, */
+        cancelEvent: "", 
+        isAutoOffAnimation:true,
+
+        frameCoordinates:frames,
+        controls:controlsWS,
+        universe:world,
+
+        positionX:0
+    }
+)
+
+const willSmith= new Character(
+
+    {     
+        speedX:0,
+        speedY:0,
+        acceleration:0,
+       /*  position:{x:400, y:100}, */
+        around:{x:0, y:0},
+        /* gameFrameCounter: 0, */
+        spriteSheet: spriteSheet,
+        frameWidth: 796,
+        frameHeight: 719,
+       
+
+        //params
+        staggerFrames:5,
+        animationName:"jumpReady",
+        /* isLoopAnimation: false, */
+        cancelEvent: "", 
+        isAutoOffAnimation:true,
+
+        frameCoordinates:frames,
+        controls:controlsWS,
+        universe:world,
+
+        positionX:400
+    }
+)
+
+
+
+
+world.drawSprites()
+
+
+
+const controlOfChue= new Control(chue);
+const controlsOfRigoberto= new Control(rigoberto);
+const controlsOfWillSmith= new Control(willSmith);
+controlsOfRigoberto.hookCharacter("idle", true)
+controlOfChue.hookCharacter("idle", true)
+controlsOfWillSmith.hookCharacter("idle", true)
+
+rigoberto.configHitbox({x:38, y:22, width:60, height:126, border:3, color:"red"})
+
+chue.configHitbox({x:38, y:22, width:60, height:126})
+
+willSmith.configHitbox({x:38, y:22, width:60, height:126})
+
+
+/* setInterval(()=>{
+    
+    console.log(world.stackAnimations)
+}, 5000) */
