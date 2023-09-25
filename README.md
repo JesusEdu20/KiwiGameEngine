@@ -1,6 +1,6 @@
 # Motor de Videojuegos Kiwi
 
-El Motor de Videojuegos Kiwi es una potente herramienta de desarrollo para la creación de juegos en la web. Diseñado para simplificar la creación de juegos interactivos y atractivos, Kiwi proporciona una base sólida y versátil para dar vida a tus ideas.
+El Motor de Videojuegos Kiwi es una herramienta de desarrollo para la creación de juegos en la web. Diseñado para simplificar la creación de juegos interactivos y atractivos, Kiwi proporciona una base sólida y versátil para dar vida a tus ideas.
 
 ## Características Destacadas
 
