@@ -1,47 +1,65 @@
-# Motor de Videojuegos Kiwi
+# Kiwi Game Tools
 
-El Motor de Videojuegos Kiwi es una herramienta de desarrollo para la creación de juegos en la web. Diseñado para simplificar la creación de juegos interactivos y atractivos, Kiwi proporciona una base sólida y versátil para dar vida a tus ideas.
+A comprehensive toolkit for building interactive games on the client-side using JavaScript.
 
-## Características Destacadas
+## Features
 
-- **Sprites y Animaciones:** Crea personajes y objetos animados con facilidad utilizando sprites y hojas de sprites. El motor admite animaciones en bucle y ofrece control total sobre los fotogramas.
+- **Character Module:** Provides a flexible class to create and manage game characters with various attributes such as speed, sprite sheets, animations, and controls.
+  
+- **Control Module:** Offers methods for handling character controls, initiating animations, and toggling display status based on user-defined events.
 
-- **Detección de Colisiones:** Kiwi incluye detección de colisiones integrada para que puedas definir cómo interactúan los elementos del juego.
+- **Universe Module:** Manages the game environment, including canvas rendering, sprite animations, collision detection, gravity simulation, and map generation.
 
-- **Física Simplificada:** Agrega físicas realistas a tus juegos con opciones de velocidad, aceleración y gravedad personalizables.
+## Installation
+`npm install kiwi-game-tools`
 
-- **Controles y Eventos:** Implementa controles intuitivos y eventos personalizados para dar vida a tus personajes y objetos.
 
-- **Fácil Configuración:** Kiwi es fácil de configurar y se integra perfectamente con tu entorno de desarrollo.
+## Usage
 
-- **Debugging Amigable:** Depura tus juegos con facilidad utilizando herramientas de depuración visuales, incluida la visualización de hitboxes.
+### Character Module
 
-## Ejemplo de Uso
+#### Constructor Options
 
-```javascript
-import { Character, Universe, Control } from 'kiwi-game-engine';
+- `speedX`: Horizontal speed of the character.
+- `speedY`: Vertical speed of the character.
+- `acceleration`: Acceleration of the character.
+- `spriteSheet`: URL of the sprite sheet image.
+- ... (additional options)
 
-// Crea un personaje
+````javascript
+import { Character } from 'kiwi-game-tools';
+
 const player = new Character({
-  speedX: 0,
-  speedY: 0,
-  // ... (configuración adicional)
+  speedX: 5,
+  speedY: 5,
+  spriteSheet: 'path/to/sprite.png',
+  // Add more options as needed
 });
+````
 
-// Configura el universo del juego
+
+### Control Module
+
+````javascript
+import { Control } from 'kiwi-game-tools';
+
+const controls = new Control(player);
+
+controls.hookCharacter('defaultAnimation', true);
+````
+
+
+### Universe Module
+````javascript
+import { Universe } from 'kiwi-game-tools';
+
 const canvas = document.getElementById('game-canvas');
-const ctx = canvas.getContext('2d');
-const gameUniverse = new Universe(canvas, ctx);
+const game = new Universe(canvas);
 
-// Agrega controles al personaje
-const playerControls = {
-  ArrowUp: { startEvent: 'keydown', startAnimation: 'run', endEvent: 'keyup', endAnimation: 'idle' },
-  // ... (otros controles)
-};
-const playerController = new Control(player);
-playerController.hookCharacter('idle', false);
+game.drawSprites();
+````
 
-// Inicia el juego
-gameUniverse.requestSpriteAnimation(player);
+#### License
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
 
-// ... (continúa con tu lógica de juego)
+

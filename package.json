@@ -1,0 +1,19 @@
+{
+  "name": "kiwi-game-kit",
+  "version": "1.0.0",
+  "description": "\"Kit de herramientas para el desarrollo de juegos web\"",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JesusEdu20/KiwiGameEngine.git"
+  },
+  "author": "Jesus Castillo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JesusEdu20/KiwiGameEngine/issues"
+  },
+  "homepage": "https://github.com/JesusEdu20/KiwiGameEngine#readme"
+}
