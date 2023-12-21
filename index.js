@@ -1,10 +1,8 @@
-// index.js
-const character = require('./lib/character');
-const control = require('./lib/control');
-const universe = require('./lib/universe');
 
-module.exports = {
-  Character: character,
-  Control: control,
-  Universe: universe
-};
+// index.js
+import Character from './lib/character.js';
+import Control from './lib/controls.js';
+import Universe from './lib/universe.js';
+
+
+export { Character, Control, Universe }
