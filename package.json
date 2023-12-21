@@ -1,6 +1,6 @@
 {
   "name": "kiwi-game-kit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "\"Kit de herramientas para el desarrollo de juegos web\"",
   "main": "index.js",
   "scripts": {
